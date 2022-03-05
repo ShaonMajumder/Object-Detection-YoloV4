@@ -42,20 +42,35 @@ def imageArray(input,output):
 
     cv.imwrite(output, frame)
 
-    json_object = json.dumps(output_dict, indent = 0, separators=(',', ':'))
-    json_object = json_object.replace('\n', '')
-    return json_object
+    return output_dict
 
-# print( imageArray('io/resturant.jpg','io/img.png') )
+def getFrameCount(input):
+    vidcap = cv.VideoCapture(input)
+    fps = vidcap.get(cv.CAP_PROP_FPS)      # OpenCV2 version 2 used "CV_CAP_PROP_FPS"
+    frame_count = int(vidcap.get(cv.CAP_PROP_FRAME_COUNT))
+    return frame_count
 
 
-vidcap = cv.VideoCapture('io/1.mp4')
-success,frame = vidcap.read()
-count = 0
-while success:
-    cv.imwrite("io/in.jpg" , frame)     # save frame as JPEG file      
-    print( imageArray('io/in.jpg','io/img.png') , '\n')
-    
+def videoArray(input):
+    vid_file = 'io/1.mp4'
+    frame_count = getFrameCount(vid_file)
+    vidcap = cv.VideoCapture(vid_file)
     success,frame = vidcap.read()
-    print('Read a new frame: ', success)
-    count += 1
+    frame_interval = int(frame_count/10)
+    frame_no = frame_interval
+    vid_array = []
+    while frame_no <= frame_count:
+        # vidcap.set(2,frame_no)
+        vidcap.set( int(vidcap.get(cv.CAP_PROP_POS_FRAMES)) , frame_no)
+        print("Frame No = ",frame_no)
+        susccess, frame = vidcap.read()
+        cv.imwrite("io/in.jpg" , frame) 
+        vid_array.append( imageArray('io/in.jpg','io/img.png') )
+        frame_no += frame_interval
+    return vid_array
+    
+
+vidInfo = videoArray('io/1.mp4')
+json_object = json.dumps(vidInfo, indent = 0, separators=(',', ':'))
+json_object = json_object.replace('\n', '')
+print(json_object)
