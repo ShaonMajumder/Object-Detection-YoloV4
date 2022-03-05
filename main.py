@@ -1,6 +1,12 @@
+import argparse
 import json
 import cv2 as cv
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input", help = "Input File")
+args = parser.parse_args()
+
+    
 net = cv.dnn_DetectionModel('resources/yolov4.cfg', 'resources/yolov4.weights')
 
 def imageArray(input,output):
@@ -70,7 +76,11 @@ def videoArray(input):
     return vid_array
     
 
-vidInfo = videoArray('io/1.mp4')
-json_object = json.dumps(vidInfo, indent = 0, separators=(',', ':'))
-json_object = json_object.replace('\n', '')
-print(json_object)
+if args.input:
+    input = args.input
+    vidInfo = videoArray(input)
+    json_object = json.dumps(vidInfo, indent = 0, separators=(',', ':'))
+    json_object = json_object.replace('\n', '')
+    print(json_object)
+else:
+    print("No input received !")
