@@ -4,6 +4,7 @@ import cv2 as cv
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help = "Input File")
+parser.add_argument("-it", "--input_type", help = "Input File")
 args = parser.parse_args()
 
     
@@ -57,18 +58,18 @@ def getFrameCount(input):
     return frame_count
 
 
-def videoArray(input):
+def videoArray(input,sample_size=5):
     vid_file = 'io/1.mp4'
     frame_count = getFrameCount(vid_file)
     vidcap = cv.VideoCapture(vid_file)
     success,frame = vidcap.read()
-    frame_interval = int(frame_count/10)
+    frame_interval = int(frame_count/sample_size)
     frame_no = frame_interval
     vid_array = []
     while frame_no <= frame_count:
         # vidcap.set(2,frame_no)
         vidcap.set( int(vidcap.get(cv.CAP_PROP_POS_FRAMES)) , frame_no)
-        print("Frame No = ",frame_no)
+        # print("Frame No = ",frame_no)
         susccess, frame = vidcap.read()
         cv.imwrite("io/in.jpg" , frame) 
         vid_array.append( imageArray('io/in.jpg','io/img.png') )
@@ -76,11 +77,19 @@ def videoArray(input):
     return vid_array
     
 
-if args.input:
+if args.input and args.input_type:
     input = args.input
-    vidInfo = videoArray(input)
-    json_object = json.dumps(vidInfo, indent = 0, separators=(',', ':'))
-    json_object = json_object.replace('\n', '')
-    print(json_object)
+    if args.input_type == "video":
+        vidInfo = videoArray(input)
+        json_object = json.dumps(vidInfo, indent = 0, separators=(',', ':'))
+        json_object = json_object.replace('\n', '')
+        print(json_object)
+    elif args.input_type == "image":
+        imageInfo = imageArray(input,'io/ouput.jpg')
+        json_object = json.dumps(imageInfo, indent = 0, separators=(',', ':'))
+        json_object = json_object.replace('\n', '')
+        print(json_object)
+        
+
 else:
     print("No input received !")
