@@ -1,14 +1,20 @@
 import argparse
 import json
 import cv2 as cv
+import os
+import sys
+
+def get_script_path():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+script_path = get_script_path()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help = "Input File")
 parser.add_argument("-it", "--input_type", help = "Input File")
 args = parser.parse_args()
-
     
-net = cv.dnn_DetectionModel('resources/yolov4.cfg', 'resources/yolov4.weights')
+net = cv.dnn_DetectionModel(script_path+'/resources/yolov4.cfg', script_path+'/resources/yolov4.weights')
 
 def imageArray(input,output):
     frame = cv.imread(input)
@@ -17,30 +23,27 @@ def imageArray(input,output):
     net.setInputScale(1.0 / 255)
     net.setInputSwapRB (True)
 
-
-    with open('resources/coco.names', 'rt') as f:
+    with open(script_path+'/resources/coco.names', 'rt') as f:
         names = f.read().rstrip('\n').split('\n')
 
     classes, confidences, boxes = net.detect(frame, confThreshold=0.1, nmsThreshold=0.4)
 
-
-    output_dict = {}
+    image_array = {}
 
     for classId, confidence, box in zip(classes.flatten(), confidences.flatten(), boxes):
         label = '%.2f' % confidence
         label = '%s: %s' % (names[classId], label) 
         label_name = names[classId]
 
-
         labelSize, baseline = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1) 
         left, top, width, height = box 
         
-        if label_name in output_dict:
-            old_value = output_dict[ label_name ]
+        if label_name in image_array:
+            old_value = image_array[ label_name ]
             old_value.append( [str(confidence),str(box)] )
-            output_dict[ label_name ] = old_value
+            image_array[ label_name ] = old_value
         else:
-            output_dict[ label_name ] = [ [str(confidence),str(box)] ]
+            image_array[ label_name ] = [ [str(confidence),str(box)] ]
 
         top = max(top, labelSize[1]) 
         cv.rectangle(frame, box, color=(0, 255, 0), thickness=3) 
@@ -49,7 +52,7 @@ def imageArray(input,output):
 
     cv.imwrite(output, frame)
 
-    return output_dict
+    return image_array
 
 def getFrameCount(input):
     vidcap = cv.VideoCapture(input)
@@ -67,7 +70,6 @@ def videoArray(input,sample_size=5):
     frame_no = frame_interval
     vid_array = []
     while frame_no <= frame_count:
-        # vidcap.set(2,frame_no)
         vidcap.set( int(vidcap.get(cv.CAP_PROP_POS_FRAMES)) , frame_no)
         # print("Frame No = ",frame_no)
         susccess, frame = vidcap.read()
@@ -89,7 +91,5 @@ if args.input and args.input_type:
         json_object = json.dumps(imageInfo, indent = 0, separators=(',', ':'))
         json_object = json_object.replace('\n', '')
         print(json_object)
-        
-
 else:
     print("No input received !")
