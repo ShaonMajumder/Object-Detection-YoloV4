@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import argparse
 import json
 import cv2 as cv
@@ -7,7 +8,7 @@ import sys
 def get_script_path():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
-script_path = get_script_path()
+script_path = sys.argv[0] #get_script_path()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help = "Input File")
