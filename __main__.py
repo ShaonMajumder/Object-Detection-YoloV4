@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#this is a critical update
 import argparse
 import json
 import cv2 as cv
