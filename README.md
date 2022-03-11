@@ -2,8 +2,8 @@
 Implemnted By **Shaon Majumer**
 
 # IO
-python3 main.py --input=io/resturant.jpg --input_type=image
-python3 main.py --input=io/2.mp4 --input_type=video
+python3 __main__.py --input=io/resturant.jpg --input_type=image
+python3 __main__.py --input=io/2.mp4 --input_type=video
 
 # Download Resources
 [Overall](https://wiki.loliot.net/docs/lang/python/libraries/yolov4/python-yolov4-about)
